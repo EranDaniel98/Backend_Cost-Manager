@@ -9,19 +9,23 @@ const mongoose = require('mongoose');
 const addCostRouter = require('./routes/add_cost');
 const reportRouter = require('./routes/report');
 const aboutRouter = require('./routes/about');
-const {Schema} = require("mongoose");
 const app = express();
+const URI = 'mongodb+srv://admin:admin@cluster0.pmdqwtv.mongodb.net/Backend-project';
 
 class MongoDB_Handler {
-    constructor(serverIP, serverPort) {
-        mongoose.Promise = global.Promise;
+    constructor() {
         try {
-            mongoose.connect('mongodb://' + serverIP + ':' + serverPort);
-            console.log("Successfully connected to MongoDB server")
-            console.log("Server connection details: " + serverIP + ':' + serverPort)
-        } catch (error) {
-            console.error(error);
+            mongoose.connect(URI, {useNewUrlParser: true, useUnifiedTopology: true});
+            console.log("MongoDB Atlas connection established successfully");
+        } catch (err) {
+            console.log(`Error occurred while connecting to MongoDB Atlas: ${err}`);
         }
+
+        const connection = mongoose.connection;
+
+        connection.once('open', () => {
+            console.log('MongoDB Atlas connection established successfully');
+        })
     };
 
     createBaseUser() {
@@ -31,15 +35,21 @@ class MongoDB_Handler {
             last_name: 'israeli',
             birthday: 'January, 10th, 1990'
         });
-        if (!userSchema.exists(sampleUser)){
-            sampleUser.save((err) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Sample user added to the database");
-                }
-            });
-        }
+
+        userSchema.findOne({id: 123123}, (err, doc) => {
+            if(err) return console.log(err);
+            if(!doc) {
+                sampleUser.save((err) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("Sample user added to the database");
+                    }
+                });
+            } else {
+                console.log("User already exists in the database");
+            }
+        });
     }
 }
 
@@ -73,7 +83,8 @@ app.use(function (err, req, res, next) {
     res.render('error');
 });
 
-handler = new MongoDB_Handler('127.0.0.1', 27017)
+
+handler = new MongoDB_Handler()
 handler.createBaseUser();
 
 module.exports = app;
