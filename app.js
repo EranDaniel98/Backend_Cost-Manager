@@ -28,7 +28,9 @@ class MongoDB_Handler {
         })
     };
 
+// Class function that creates our base user - Moshe Israeli
     createBaseUser() {
+        // Create user schema
         const sampleUser = new userSchema({
             id: 123123,
             first_name: 'moshe',
@@ -36,6 +38,7 @@ class MongoDB_Handler {
             birthday: 'January, 10th, 1990'
         });
 
+        //Check if the user already exists in the Collection - if not, create
         userSchema.findOne({id: 123123}, (err, doc) => {
             if(err) return console.log(err);
             if(!doc) {
@@ -73,7 +76,7 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -82,6 +85,7 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
+
 
 
 handler = new MongoDB_Handler()
